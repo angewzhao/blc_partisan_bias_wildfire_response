@@ -1,0 +1,12 @@
+Fire Perimeters Data from frap.fire.gov/mapping/gis-data
+
+This is a multi-agency statewide database of fire history. For CAL FIRE, timber fires 10 acres or greater, brush fires 30 acres and greater, and grass fires 300 acres or greater are included. For the USFS, there is a 10 acre minimum for fires since 1950.
+
+This dataset contains wildfire history, prescribed burns and other fuel modification projects.
+
+Updated May, 2020
+
+DISCLAIMER
+By downloading from this page, the user agrees to the following terms and conditions. The State of California and the Department of Forestry and Fire Protection make no representations or warranties regarding the accuracy of data or maps. The user will not seek to hold the State or the Department liable under any circumstances for any damages with respect to any claim by the user or any third party on account of or arising from the use of data or maps.
+
+The user will cite the Department of Forestry and Fire Protection as the original source of the maps, but will clearly denote cases where the original maps have been updated, modified, or in any way altered from the original condition. There are no restrictions on the distribution of the maps by users. However, users are encouraged to refer others to the Department of Forestry and Fire Protection to acquire the maps, in case updated maps become available
