@@ -9,4 +9,268 @@ Updated May, 2020
 DISCLAIMER
 By downloading from this page, the user agrees to the following terms and conditions. The State of California and the Department of Forestry and Fire Protection make no representations or warranties regarding the accuracy of data or maps. The user will not seek to hold the State or the Department liable under any circumstances for any damages with respect to any claim by the user or any third party on account of or arising from the use of data or maps.
 
-The user will cite the Department of Forestry and Fire Protection as the original source of the maps, but will clearly denote cases where the original maps have been updated, modified, or in any way altered from the original condition. There are no restrictions on the distribution of the maps by users. However, users are encouraged to refer others to the Department of Forestry and Fire Protection to acquire the maps, in case updated maps become available
+The user will cite the Department of Forestry and Fire Protection as the original source of the maps, but will clearly denote cases where the original maps have been updated, modified, or in any way altered from the original condition. There are no restrictions on the distribution of the maps by users. However, users are encouraged to refer others to the Department of Forestry and Fire Protection to acquire the maps, in case updated maps become available.
+
+Layer: Prescribed Burns (ID: 1)
+View In:   ArcGIS Online Map Viewer
+
+Name: Prescribed Burns
+
+Display Field: TREATMENT_NAME
+
+Type: Feature Layer
+
+Geometry Type: esriGeometryPolygon
+
+Description: CAL FIRE Fire Perimeters and Prescribed Burns. This service is set up as a non-editable Feature Service with minimal symbology. It can be added to ArcMap where the symbology can be changed as needed, the attribution can be accessed, and the data can be exported. This service is to be kept up to date to always point to the latest official version of the firep data.
+
+Copyright Text: CALFIRE, USDA Forest Service, other Federal Partners
+
+Default Visibility: true
+
+MaxRecordCount: 1000
+
+Supported Query Formats: JSON, geoJSON
+
+Min Scale: 0
+
+Max Scale: 0
+
+Supports Advanced Queries: true
+
+Supports Statistics: true
+
+Use Standardized Queries: true
+
+Supports ValidateSQL: true
+
+Supports Calculate: true
+
+Extent:
+XMin: -1.38483521132E7
+YMin: 3839604.1178
+XMax: -1.28960031408E7
+YMax: 5161368.913
+Spatial Reference: 102100  (3857)
+
+
+Drawing Info:
+Renderer:
+Simple Renderer:
+Symbol:
+Style: esriSFSSolid
+Color: [0, 0, 0, 0]
+Outline:
+Style: esriSLSSolid
+Color: [130, 130, 130, 255]
+Width: 0
+Label:
+Description:
+Transparency: 0
+Labeling Info:
+Advanced Query Capabilities:
+Supports Statistics: true
+Supports OrderBy: true
+Supports Distinct: true
+Supports Pagination: true
+Supports TrueCurve: true
+Supports Returning Query Extent: true
+Supports Query With Distance: true
+Supports Sql Expression: true
+Supports Query With ResultType: true
+Supports Returning Geometry Centroid: false
+
+HasZ: false
+
+HasM: false
+
+Has Attachments: false
+
+HTML Popup Type: esriServerHTMLPopupTypeAsHTMLText
+
+Type ID Field:
+
+Fields:
+OBJECTID ( type: esriFieldTypeOID, alias: OBJECTID, editable: false, nullable: false, defaultValue: null, modelName: OBJECTID )
+YEAR_ ( type: esriFieldTypeString, alias: YEAR_, editable: true, nullable: true, length: 4, defaultValue: null, modelName: YEAR_ )
+STATE ( type: esriFieldTypeString, alias: STATE, editable: true, nullable: true, length: 2, defaultValue: null, modelName: STATE , Coded Values: [CA: California] , [NV: Nevada] , [OR: Oregon] , ...1 more... )
+AGENCY ( type: esriFieldTypeString, alias: AGENCY, editable: true, nullable: true, length: 3, defaultValue: null, modelName: AGENCY , Coded Values: [BIA: USDI Bureau of Indian Affairs] , [BLM: Bureau of Land Management] , [CDF: California Department of Forestry and Fire Protection] , ...9 more... )
+UNIT_ID ( type: esriFieldTypeString, alias: UNIT_ID, editable: true, nullable: true, length: 3, defaultValue: null, modelName: UNIT_ID )
+TREATMENT_ID ( type: esriFieldTypeString, alias: TREATMENT_ID, editable: true, nullable: true, length: 50, defaultValue: null, modelName: TREATMENT_ID )
+TREATMENT_NAME ( type: esriFieldTypeString, alias: TREATMENT_NAME, editable: true, nullable: true, length: 100, defaultValue: null, modelName: TREATMENT_NAME )
+TREATMENT_TYPE ( type: esriFieldTypeSmallInteger, alias: TREATMENT_TYPE, editable: true, nullable: true, defaultValue: null, modelName: TREATMENT_TYPE , Coded Values: [1: Biological] , [2: Biomass Removal] , [3: Broadcast Burn] , ...14 more... )
+START_DATE ( type: esriFieldTypeDate, alias: START_DATE, editable: true, nullable: true, length: 8, defaultValue: null, modelName: START_DATE )
+END_DATE ( type: esriFieldTypeDate, alias: END_DATE, editable: true, nullable: true, length: 8, defaultValue: null, modelName: END_DATE )
+TREATED_AC ( type: esriFieldTypeDouble, alias: TREATED_AC, editable: true, nullable: true, defaultValue: null, modelName: TREATED_AC )
+GIS_ACRES ( type: esriFieldTypeDouble, alias: GIS_ACRES, editable: true, nullable: true, defaultValue: null, modelName: GIS_ACRES )
+RX_CONSUM ( type: esriFieldTypeSmallInteger, alias: RX_CONSUM, editable: true, nullable: true, defaultValue: null, modelName: RX_CONSUM , Coded Values: [1: 1 - Low Consumption] , [2: 2 - Moderate Consumption] , [3: 3 - High Consumption] , ...1 more... )
+PRE_CON_CLASS ( type: esriFieldTypeSmallInteger, alias: PRE_CON_CLASS, editable: true, nullable: true, defaultValue: null, modelName: PRE_CON_CLASS , Coded Values: [1: Within or near historical range] , [2: Moderately altered from historical range] , [3: Significantly altered from historical range] )
+POST_CON_CLASS ( type: esriFieldTypeSmallInteger, alias: POST_CON_CLASS, editable: true, nullable: true, defaultValue: null, modelName: POST_CON_CLASS , Coded Values: [1: Within or near historical range] , [2: Moderately altered from historical range] , [3: Significantly altered from historical range] )
+Templates:
+Name: Prescribed Burns
+Description:
+Prototype:
+POST_CON_CLASS: null
+YEAR_: null
+STATE: null
+AGENCY: null
+UNIT_ID: null
+TREATMENT_ID: null
+TREATMENT_NAME: null
+TREATMENT_TYPE: null
+START_DATE: null
+END_DATE: null
+TREATED_AC: null
+GIS_ACRES: null
+RX_CONSUM: null
+PRE_CON_CLASS: null
+Drawing Tool: esriFeatureEditToolPolygon
+
+Capabilities: Query
+
+Sync Can Return Changes: false
+
+Is Data Versioned: false
+
+Supports Rollback On Failure: true
+
+Supports ApplyEdits With Global Ids: false
+
+Supports Query With Historic Moment: false
+
+Supports Coordinates Quantization: true
+
+Supported Operations:   Query   Query Attachments   Calculate   Validate SQL   Generate Renderer   Return Updates   Iteminfo   Thumbnail   Metadata
+
+Layer: Fire Perimeters (ID: 0)
+View In:   ArcGIS Online Map Viewer
+
+Name: Fire Perimeters
+
+Display Field: FIRE_NAME
+
+Type: Feature Layer
+
+Geometry Type: esriGeometryPolygon
+
+Description: CAL FIRE Fire Perimeters and Prescribed Burns. This service is set up as a non-editable Feature Service with minimal symbology. It can be added to ArcMap where the symbology can be changed as needed, the attribution can be accessed, and the data can be exported. This service is to be kept up to date to always point to the latest official version of the firep data.
+
+Copyright Text: CALFIRE, USDA Forest Service, other Federal Partners
+
+Default Visibility: true
+
+MaxRecordCount: 1000
+
+Supported Query Formats: JSON, geoJSON
+
+Min Scale: 0
+
+Max Scale: 0
+
+Supports Advanced Queries: true
+
+Supports Statistics: true
+
+Use Standardized Queries: true
+
+Supports ValidateSQL: true
+
+Supports Calculate: true
+
+Extent:
+XMin: -1.38483341431E7
+YMin: 3833203.7478
+XMax: -1.27305827461E7
+YMax: 5255380.0361
+Spatial Reference: 102100  (3857)
+
+
+Drawing Info:
+Renderer:
+Simple Renderer:
+Symbol:
+Style: esriSFSSolid
+Color: [0, 0, 0, 0]
+Outline:
+Style: esriSLSSolid
+Color: [230, 0, 0, 255]
+Width: 0
+Label:
+Description:
+Transparency: 0
+Labeling Info:
+Advanced Query Capabilities:
+Supports Statistics: true
+Supports OrderBy: true
+Supports Distinct: true
+Supports Pagination: true
+Supports TrueCurve: true
+Supports Returning Query Extent: true
+Supports Query With Distance: true
+Supports Sql Expression: true
+Supports Query With ResultType: true
+Supports Returning Geometry Centroid: false
+
+HasZ: false
+
+HasM: false
+
+Has Attachments: false
+
+HTML Popup Type: esriServerHTMLPopupTypeAsHTMLText
+
+Type ID Field:
+
+Fields:
+OBJECTID ( type: esriFieldTypeOID, alias: OBJECTID, editable: false, nullable: false, defaultValue: null, modelName: OBJECTID )
+YEAR_ ( type: esriFieldTypeString, alias: YEAR_, editable: true, nullable: true, length: 4, defaultValue: null, modelName: YEAR_ )
+STATE ( type: esriFieldTypeString, alias: STATE, editable: true, nullable: true, length: 2, defaultValue: null, modelName: STATE , Coded Values: [CA: California] , [NV: Nevada] , [OR: Oregon] , ...1 more... )
+AGENCY ( type: esriFieldTypeString, alias: AGENCY, editable: true, nullable: true, length: 3, defaultValue: null, modelName: AGENCY , Coded Values: [BIA: USDI Bureau of Indian Affairs] , [BLM: Bureau of Land Management] , [CDF: California Department of Forestry and Fire Protection] , ...9 more... )
+UNIT_ID ( type: esriFieldTypeString, alias: UNIT_ID, editable: true, nullable: true, length: 3, defaultValue: null, modelName: UNIT_ID , Coded Values: [AFV: Vandenberg Air Force Base] , [ANF: Angeles National Forest] , [BDF: San Bernardino National Forest] , ...85 more... )
+FIRE_NAME ( type: esriFieldTypeString, alias: FIRE_NAME, editable: true, nullable: true, length: 34, defaultValue: null, modelName: FIRE_NAME )
+INC_NUM ( type: esriFieldTypeString, alias: INC_NUM, editable: true, nullable: true, length: 8, defaultValue: null, modelName: INC_NUM )
+ALARM_DATE ( type: esriFieldTypeDate, alias: ALARM_DATE, editable: true, nullable: true, length: 8, defaultValue: null, modelName: ALARM_DATE )
+CONT_DATE ( type: esriFieldTypeDate, alias: CONT_DATE, editable: true, nullable: true, length: 8, defaultValue: null, modelName: CONT_DATE )
+CAUSE ( type: esriFieldTypeSmallInteger, alias: CAUSE, editable: true, nullable: true, defaultValue: null, modelName: CAUSE , Coded Values: [1: 1 - Lightning] , [2: 2 - Equipment Use] , [3: 3 - Smoking] , ...16 more... )
+COMMENTS ( type: esriFieldTypeString, alias: COMMENTS, editable: true, nullable: true, length: 80, defaultValue: null, modelName: COMMENTS )
+REPORT_AC ( type: esriFieldTypeDouble, alias: REPORT_AC, editable: true, nullable: true, defaultValue: null, modelName: REPORT_AC )
+GIS_ACRES ( type: esriFieldTypeDouble, alias: GIS_ACRES, editable: true, nullable: true, defaultValue: null, modelName: GIS_ACRES )
+C_METHOD ( type: esriFieldTypeSmallInteger, alias: C_METHOD, editable: true, nullable: true, defaultValue: null, modelName: C_METHOD , Coded Values: [1: 1 - GPS Ground] , [2: 2 - GPS Air] , [3: 3 - Infrared] , ...5 more... )
+OBJECTIVE ( type: esriFieldTypeSmallInteger, alias: OBJECTIVE, editable: true, nullable: true, defaultValue: null, modelName: OBJECTIVE , Coded Values: [1: Suppression (Wildfire)] , [2: Resource Benefit (WFU)] )
+FIRE_NUM ( type: esriFieldTypeString, alias: FIRE_NUM, editable: true, nullable: true, length: 8, defaultValue: null, modelName: FIRE_NUM )
+Templates:
+Name: Fire Perimeters
+Description:
+Prototype:
+FIRE_NUM: null
+YEAR_: null
+STATE: null
+AGENCY: null
+UNIT_ID: null
+FIRE_NAME: null
+INC_NUM: null
+ALARM_DATE: null
+CONT_DATE: null
+CAUSE: null
+COMMENTS: null
+REPORT_AC: null
+GIS_ACRES: null
+C_METHOD: null
+OBJECTIVE: null
+Drawing Tool: esriFeatureEditToolPolygon
+
+Capabilities: Query
+
+Sync Can Return Changes: false
+
+Is Data Versioned: false
+
+Supports Rollback On Failure: true
+
+Supports ApplyEdits With Global Ids: false
+
+Supports Query With Historic Moment: false
+
+Supports Coordinates Quantization: true
+
+Supported Operations:   Query   Query Attachments   Calculate   Validate SQL   Generate Renderer   Return Updates   Iteminfo   Thumbnail   Metadata

@@ -1,0 +1,229 @@
+---
+title: Zipcodes' Distance to Fires
+author: Angela Zhao
+date: "`r Sys.Date()`"
+output: 
+  github_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE}
+# Libraries
+library(tidyverse)
+library(sf)
+library(haven)
+library(ussf)
+library(muRL)
+library(zipcode)
+library(lubridate)
+
+# Parameters
+file_raw_survey <- here::here("data/STAN0128_main_OUTPUT.rds")
+
+# PROJ string for CA
+CA_ALBERS <- 
+  "+proj=aea +lat_1=34 +lat_2=40.5 +lat_0=0 +lon_0=-120 +x_0=0 +y_0=-4000000 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+
+file_zipcodes_ca_geometry <-
+  here::here("data-raw/ca_zipcodes/ca_zipcodes.shp")
+
+file_raw_fire_perim <- here::here("data-raw/frap_fire_perimeter_gis.gdb")
+
+```
+
+## Reading in wildfires data
+```{r}
+# Function for reading in the data
+
+# read_wildfires <- function(year_wanted) {
+#   date <- "2017-08-15"
+#   year(date) <- year_wanted
+#   
+#   file_raw_fire_perim %>% 
+#     read_sf(layer = "firep19_1") %>% 
+#     rename_all(tolower) %>% 
+#     rename(
+#       geometry = shape, 
+#       geometry_length = shape_length, 
+#       geometry_area = shape_area, 
+#       year = year
+#     ) %>% 
+#     filter(alarm_date >= date, year %in% c(year_wanted,"2019")) %>% 
+#     mutate(
+#       fire_centroid = st_centroid(geometry)
+#     )
+# }
+# 
+# read_wildfires(2018)
+
+wildfires_2018_19 <-
+  file_raw_fire_perim %>% 
+  read_sf(layer = "firep19_1") %>% 
+  rename_all(tolower) %>% 
+  rename(
+    geometry = shape,
+    geometry_length = shape_length,
+    geometry_area = shape_area,
+    year = year_
+  ) %>% 
+  filter(alarm_date >= "2018-08-15", year %in% c("2018","2019"))
+
+wildfires_2017_19 <-
+  file_raw_fire_perim %>% 
+  read_sf(layer = "firep19_1") %>% 
+  rename_all(tolower) %>% 
+  rename(
+    geometry = shape,
+    geometry_length = shape_length,
+    geometry_area = shape_area,
+    year = year_
+  ) %>% 
+  filter(alarm_date >= "2017-08-15", year %in% c("2018","2019"))
+
+```
+
+## Reading in Zipcode Data
+
+```{r}
+
+zipcodes_wanted <-
+  file_raw_survey %>% 
+  read_dta() %>% 
+  mutate_if(is.labelled, as_factor) %>% 
+  filter(str_detect(consent, "Yes")) %>% 
+  distinct(inputzip) %>% 
+  rename(zip = inputzip)
+
+```
+
+## Plotting zipcodes onto the map
+
+```{r}
+# From the zipcode package
+data(zipcode)
+
+zipcodes_ca <-
+  zipcode %>% 
+  filter(state == "CA")
+
+zipcodes_ca_geometry <-
+  file_zipcodes_ca_geometry %>% 
+  read_sf() %>% 
+  rename(zipcode = name) %>% 
+  filter(zipcode %in% zipcodes_ca$zip) %>% 
+  st_transform(crs = CA_ALBERS) %>% 
+  mutate(
+    zipcode_centroid = st_centroid(geometry),
+    "3_mile_buffer" = st_buffer(zipcode_centroid, units::set_units(3, "miles")), 
+    "5_mile_buffer" = st_buffer(zipcode_centroid, units::set_units(5, "miles")), 
+    "10_mile_buffer" = st_buffer(zipcode_centroid, units::set_units(10, "miles"))
+  ) %>% 
+  select(-c(B00001001, B00001001e))
+
+```
+
+## Plotting CA and Zipcodes on a map
+
+```{r}
+ca <- 
+  boundaries(geography = "state", resolution = "500k", projection = "albers") %>% 
+  filter(NAME == "California") %>% 
+  st_transform(crs = CA_ALBERS) 
+
+
+plot_zipcodes <- function(data) {
+  ca %>% 
+  ggplot() +
+  geom_sf() +
+  geom_sf(aes(alpha = 0.05), data = data) +
+  theme_void()
+}
+
+# Plotting zipcodes as district boundaries
+
+plot_zipcodes(zipcodes_ca_geometry) 
+
+# Plotting zipcode centroid points
+
+plot_zipcodes(zipcodes_ca_geometry$zipcode_centroid) 
+
+# Plotting zipcodes in 3, 5, and 10 mile radii 
+
+plot_zipcodes(zipcodes_ca_geometry$`3_mile_buffer`)
+
+plot_zipcodes(zipcodes_ca_geometry$`5_mile_buffer`)
+
+plot_zipcodes(zipcodes_ca_geometry$`10_mile_buffer`)
+
+
+```
+
+## Plotting fires on top of zipcode centroids 
+
+```{r}
+ggplot() +
+  geom_sf(data = ca) + 
+  geom_sf(
+    aes(
+      geometry = zipcode_centroid, 
+      alpha = 0.05
+    ), 
+    data = zipcodes_ca_geometry, 
+    show.legend = "point"
+  ) + 
+  geom_sf(data = wildfires_2018_19, color = "red")
+
+```
+## Looking at overlaps between zip code buffers of 3, 5, 10 miles from geometry of fires
+
+## Created a tidy tibble of zipcodes, geometry, centroid, buffer_radius, and buffer geometry
+```{r}
+
+zipcodes_fires_ca <-
+  zipcodes_ca_geometry %>% 
+  pivot_longer(
+    cols = c("3_mile_buffer":"10_mile_buffer"), 
+    names_to = "buffer_radius(miles)", 
+    values_to = "buffer_shape"
+  ) %>% 
+  mutate(
+    "buffer_radius(miles)" = 
+      str_extract(`buffer_radius(miles)`, "\\d+") %>% as.double()
+    # fires_2018_2019 = list(wildfires_2018_19$geometry), 
+    # fires_2017_2019 = list(wildfires_2017_19$geometry)
+  )
+  
+# Put values into a nest, then list col, do the st_intersect, then sum and put as new value
+
+```
+
+
+```{r}
+fires_2018_2019 <-
+  wildfires_2018_19 %>% 
+  select(geometry) %>% 
+  pull(geometry) %>% 
+  list()
+
+fires_2017_2019 <-
+  wildfires_2017_19 %>% 
+  select(geometry) %>% 
+  pull(geometry) %>% 
+  list()
+
+
+zipcodes_fires_ca <-
+  zipcodes_fires_ca %>% 
+  mutate(
+    fires_2017_2019 = fires_2017_2019, 
+    fires_2018_2019 = fires_2018_2019
+  )
+
+zipcodes
+
+```
+
