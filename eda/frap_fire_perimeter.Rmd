@@ -19,65 +19,47 @@ library(sf)
 library(ussf)
 
 # Parameters
-file_raw <- here::here("data-raw/frap_fire_perimeter_gis.gdb")
+file_raw_gdb <- here::here("data-raw/frap_fire_perimeter_gis.gdb")
 
 CA_ALBERS <- 
   "+proj=aea +lat_1=34 +lat_2=40.5 +lat_0=0 +lon_0=-120 +x_0=0 +y_0=-4000000 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+
+file_raw_shp <- 
+  here::here("data/frap_fire_perim_firep19_1_shp/firep19_1.shp")
 
 ```
 
 ## Reading in Fire Perimeter Data
 
 ```{r}
-
 layers <-
-  file_raw %>% 
+  file_raw_gdb %>% 
   st_layers()
 
 read_sf_layers <- function(name) {
-  file_raw %>% 
+  file_raw_gdb %>% 
     read_sf(layer = name)
 }
 
 map(layers$name, read_sf_layers)
 
 ```
-## Checking if first layer already in layer 2
-
-```{r}
-layers$name
-
-fire_shape <- 
-  file_raw %>% 
-  read_sf(layer = "Non_RXFire_Legacy13_2") %>% 
-  rename_all(tolower) %>% 
-  pull(shape)
-
-non_rx_shape <-
-  file_raw %>% 
-  read_sf(layer = "firep19_1") %>% 
-  rename_all(tolower) %>% 
-  pull(shape)
-
-setdiff(non_rx_shape, fire_shape)
-
-```
-
 
 ## Wrangling Wildfire Data
 
 ```{r}
 wildfires_2018_19 <-
-  file_raw %>% 
-  read_sf(layer = "firep19_1") %>% 
+  file_raw_shp %>% 
+  read_sf() %>% 
   rename_all(tolower) %>% 
-  filter(alarm_date >= "2018-08-15", year_ %in% c("2018","2019"))
+  filter(alarm_date >= "2018/08/15", year_ %in% c("2018","2019"))
 
 wildfires_2017_19 <-
-  file_raw %>% 
-  read_sf(layer = "firep19_1") %>% 
+  file_raw_shp %>% 
+  read_sf() %>% 
   rename_all(tolower) %>% 
-  filter(alarm_date >= "2017-08-15", year_ %in% c("2018","2019"))
+  filter(alarm_date >= "2017/08/15", year_ %in% c("2017", "2018", "2019"))
+
 ```
 
 ## Finding projection of wildfires
