@@ -1,0 +1,304 @@
+---
+title: Partisan Bias
+author: Angela Zhao
+date: "`r Sys.Date()`"
+output: 
+  github_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE}
+# Libraries
+library(tidyverse)
+library(sf)
+library(haven)
+library(lubridate)
+
+# Parameters
+
+file_raw_zipcodes_fire_smoke_survey <- 
+  here::here("data/zipcodes_fire_smoke_survey/zipcodes_fire_smoke_survey.shp")
+
+file_zipcodes_ca_geometry <-
+  here::here("data/ca_zipcodes/ca_zipcodes.shp")
+
+file_raw_smoke <- here::here("data-raw/mzip_month_smoke.RDS")
+
+CA_ALBERS <- 
+  "+proj=aea +lat_1=34 +lat_2=40.5 +lat_0=0 +lon_0=-120 +x_0=0 +y_0=-4000000 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+
+CA_ALBERS_EPSG <- 3310
+
+survey_rename <-
+  c(
+    "zipcode_radius (miles)" = 'zpcd_..', 
+    num_fires_intersect = 'nm_frs_', 
+    zipcode_geometry = 'geometry', 
+    wildfire_disturb = 'wldfr_d', 
+    module_1_2_order = 'md_1_2_', 
+    wildfire_treat = 'wldfr_t', 
+    time_in_state = 'tm_n_st', 
+    consider_relocate_1 = 'cnsd__1',
+    consider_relocate_2 = 'cnsd__2',
+    consider_relocate_3 = 'cnsd__3',
+    consider_relocate_4 = 'cnsd__4',
+    state_relocate = 'stt_rlc', 
+    country_relocate_reason_1 = 'cntry_r',
+    country_relocate_reason_2 = 'cntry__',
+    relocate_pick_most = 'rlct_pck_m', 
+    relocate_pick_least = 'rlct_pck_l', 
+    parent_guardian_1 = 'prnt__1', 
+    parent_guardian_2 = 'prnt__2', 
+    parent_guardian_3 = 'prnt__3', 
+    parent_guardian_4 = 'prnt__4', 
+    grandparent_1 = 'grndp_1',
+    grandparent_2 = 'grndp_2',
+    grandparent_3 = 'grndp_3',
+    grandparent_4 = 'grndp_4',
+    own_vs_rent = 'own_vs_', 
+    faminc_new = 'fmnc_nw', 
+    presvote16post = 'prsvt16', 
+    state_lookup = 'stt_lkp', 
+    religpew = 'religpw', 
+    pew_churatd = 'pw_chrt',                  
+    pew_bornagain = 'pw_brng', 
+    pew_religimp = 'pw_rlgm', 
+    pew_prayer = 'pw_pryr', 
+    starttime = 'starttm'
+  )
+
+selected_recode_key <-
+  c(
+   "not selected" = "0", 
+    "selected" = "1"
+  )
+
+ca_zipcodes <-
+  file_zipcodes_ca_geometry %>% 
+  read_sf() %>% 
+  st_drop_geometry() %>% 
+  pull(name)
+
+
+```
+
+## Reading in and wrangling the data
+
+Columns stt_lk_m, stt_lk_l had suspec values, and also had values that were not contained within the codebook. They were removed. 
+
+```{r}
+
+zipcodes_fire_smoke_survey <-
+  file_raw_zipcodes_fire_smoke_survey %>% 
+  read_sf() %>% 
+  select(-c(stt_lk_m, stt_lk_l)) %>%
+  rename(!!! survey_rename) %>% 
+  rename_at(
+    vars(q1_1_1_1:q12_8_4), 
+    ~ str_replace(., "(q\\d*)(_)([:alpha:]*)(.*)", "\\1\\2mod\\4")
+  ) %>% 
+  mutate(
+    zipcode_geometry = st_transform(zipcode_geometry, CA_ALBERS)
+  )
+
+st_crs(zipcodes_fire_smoke_survey$zipcode_geometry) <- CA_ALBERS_EPSG
+
+# Checking the geometry was zipcode geometry
+# ca <-
+#   boundaries(geography = "state", resolution = "500k", projection = "albers") %>%
+#   filter(NAME == "California") %>%
+#   st_transform(crs = CA_ALBERS)
+# 
+# zipcodes_fire_smoke_survey %>%
+#   ggplot() +
+#   geom_sf(data = ca) +
+#   geom_sf()
+
+
+```
+
+## Wildfire perception
+
+### Looking at wildfire perception among party base
+
+```{r}
+
+wildfires_survey_zipcodes <-
+  zipcodes_fire_smoke_survey %>% 
+  select(
+    zipcode:weight, 
+    wildfire_in_state = q1_mod1_2_1, 
+    personal_experience_wildfire = q1_mod1_2_2, 
+    no_experience_wildfire = q1_mod1_2_4, 
+    party = pid3, 
+    party_strength = pid7
+  ) %>% 
+  mutate_at(
+    vars(wildfire_in_state:no_experience_wildfire), 
+    ~ recode(., !!! selected_recode_key) %>% as.double()
+  ) %>% 
+  filter(no_experience_wildfire == 0, zipcode %in% ca_zipcodes) 
+
+wildfires_survey_zipcodes %>% 
+  st_drop_geometry() %>% 
+  count(party, wildfire_in_state, wt = weight) %>% 
+  group_by(party) %>% 
+  mutate(
+    prop = n / sum(n)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    order = if_else(wildfire_in_state == 0, prop, 0), 
+    party = fct_reorder(party, order)
+  ) %>% 
+  filter(wildfire_in_state == 0) %>% 
+  ggplot(aes(party, prop)) +
+  geom_hline(aes(yintercept = mean(prop)), color = "red") +
+  geom_col() +
+  labs(
+    x = "Political party", 
+    y = "Prop of resp, by party, who believed no major wildfires occured", 
+    title = 
+      "By party, hightest prop of independents believe no major wildfires 2018-2019"
+  )
+
+```
+
+### Wildfire perception controlling for people who have personally experienced a fire
+
+```{r}
+
+wildfires_survey_zipcodes %>% 
+  st_drop_geometry() %>% 
+  filter(personal_experience_wildfire == 1) %>% 
+  count(party, wildfire_in_state, wt = weight) %>% 
+  group_by(party) %>% 
+  mutate(
+    prop = n / sum(n)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    order = if_else(wildfire_in_state == 0, prop, 0), 
+    party = fct_reorder(party, order)
+  ) %>% 
+  filter(wildfire_in_state == 0) %>% 
+  ggplot(aes(party, prop)) +
+  geom_hline(aes(yintercept = mean(prop)), color = "red") +
+  geom_col() +
+  labs(
+    x = "Political party", 
+    y = "Prop of resp, by party, who believed no major wildfires occured", 
+    title = 
+      "By party, hightest prop of independents believe no major wildfires 2018-2019"
+  )
+
+
+```
+
+## Looking at wildfire perception while controlling for smoke density
+
+
+```{r}
+wildfires_survey_zipcodes %>% 
+  st_drop_geometry() %>% 
+  filter(
+    density != 0, 
+    num_fires_intersect != 0,
+    party %in% c("Democrat", "Republican", "Independent")
+  ) %>% 
+  count(`zipcode_radius (miles)`, party, wildfire_in_state, wt = weight) %>% 
+  group_by(`zipcode_radius (miles)`, party) %>% 
+  mutate(
+    prop = n / sum(n)
+  ) %>%
+  ungroup() %>% 
+  mutate(
+    order = if_else(wildfire_in_state == 0, prop, 0), 
+    party = fct_reorder(party, order)
+  ) %>% 
+  filter(wildfire_in_state == 0) %>% 
+  ggplot(aes(party, prop)) +
+  facet_wrap(vars(`zipcode_radius (miles)`)) +
+  geom_hline(aes(yintercept = mean(prop)), color = "red") +
+  geom_col() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(
+    x = "Political party", 
+    y = "Prop of resp, by party, who believed no major wildfires occured", 
+    title = 
+      "By party, prop of resp who believed no major wildfires 2018-2019"
+  )
+
+wildfires_survey_zipcodes %>% 
+  st_drop_geometry() %>% 
+  filter(
+    density != 0, 
+    num_fires_intersect != 0,
+    party %in% c("Democrat", "Republican", "Independent")
+  ) %>% 
+  count(party, wt = weight)
+
+
+```
+```{r}
+file_smoke <-
+  file_raw_smoke %>% 
+  readRDS() %>% 
+  mutate(
+    date = make_date(year = as.character(year), month = month, day = 01), 
+    years = "2018-2019"
+  ) %>% 
+  rename(
+    zipcode = mzip
+  ) %>% 
+  group_by(years, zipcode, density) %>%
+  mutate(
+    count = sum(count), 
+    days = sum(days)
+  ) %>% 
+  select(years, zipcode, density, count, days) %>%
+  distinct() %>% 
+  arrange(years, zipcode, density)
+
+file_smoke
+```
+
+
+
+```{r}
+
+wildfires_survey_zipcodes %>% 
+  st_drop_geometry() %>% 
+  filter(
+    density != 0, 
+    num_fires_intersect != 0,
+    party %in% c("Democrat", "Republican", "Independent")
+  ) %>% 
+  count(`zipcode_radius (miles)`, party, wildfire_in_state, wt = weight) %>% 
+  group_by(`zipcode_radius (miles)`, party) %>% 
+  mutate(
+    prop = n / sum(n)
+  ) %>%
+  ungroup() %>% 
+  mutate(
+    order = if_else(wildfire_in_state == 0, prop, 0), 
+    party = fct_reorder(party, order)
+  ) %>% 
+  filter(wildfire_in_state == 0) %>% 
+  ggplot(aes(party, prop)) +
+  facet_wrap(vars(`zipcode_radius (miles)`)) +
+  geom_hline(aes(yintercept = mean(prop)), color = "red") +
+  geom_col() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(
+    x = "Political party", 
+    y = "Prop of resp, by party, who believed no major wildfires occured", 
+    title = 
+      "By party, prop of resp who believed no major wildfires 2018-2019"
+  )
+```
+

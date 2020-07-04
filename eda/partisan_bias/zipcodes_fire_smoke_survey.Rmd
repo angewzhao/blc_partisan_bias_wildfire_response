@@ -1,0 +1,97 @@
+---
+title: Partisan Bias
+author: Angela Zhao
+date: "`r Sys.Date()`"
+output: 
+  github_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE}
+# Libraries
+library(tidyverse)
+library(sf)
+library(haven)
+library(lubridate)
+
+# Parameters
+
+file_raw_smoke <- here::here("data-raw/mzip_month_smoke.RDS")
+
+# file_raw_zipcodes_fire_ca_smoke <-
+#   here::here("data/zipcodes_fire_ca_smoke_shp/zipcodes_fire_ca_smoke.shp")
+# Above is no longer in use.
+
+
+file_raw_survey <- here::here("data/STAN0128_main_OUTPUT.rds")
+
+file_out_zipcodes_fire_smoke_survey <- 
+  here::here("data/zipcodes_fire_smoke_survey.shp")
+
+
+```
+
+## Notes
+
+Months chosen: only the months file_smoke contained were chosen for the fires as well. So took from Jan 2018 to March 2019. 
+
+
+## Reading and cleaning files
+
+```{r}
+file_smoke <-
+  file_raw_smoke %>% 
+  readRDS() %>% 
+  mutate(
+    date = make_date(year = as.character(year), month = month, day = 01), 
+    years = "2018-2019"
+  ) %>% 
+  rename(
+    zipcode = mzip
+  ) %>% 
+  group_by(years, zipcode, density) %>%
+  mutate(
+    count = sum(count), 
+    days = sum(days)
+  ) %>% 
+  select(years, zipcode, density, count, days) %>%
+  distinct() %>% 
+  arrange(years, zipcode, density)
+
+file_zipcodes_fire_ca_smoke <-
+  file_raw_zipcodes_fire_ca_smoke %>% 
+  read_sf() %>% 
+  select(-geoid) %>% 
+  rename(
+    'zipcode_radius (miles)' = `zpcd_..`, 
+    num_fires_intersect = nm_frs_, 
+    zipcode_geometry = geometry
+  )  
+
+file_survey <-
+  file_raw_survey %>% 
+  read_dta() %>% 
+  mutate_if(is.labelled, as_factor) %>%
+  mutate(
+    zipcode = as.character(inputzip)
+  ) %>% 
+  filter(str_detect(consent, "Yes")) %>% 
+  select(-consent, -inputzip)
+
+```
+
+## Joining files together
+
+```{r}
+
+file_zipcodes_fire_ca %>% 
+  left_join(file_smoke, by = c("zipcode", "years")) %>% 
+  left_join(file_survey, by = "zipcode") %>% 
+  write_sf(file_out_zipcodes_fire_smoke_survey)
+
+```
+
